@@ -1,5 +1,12 @@
 {
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    }
+  },
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2
 }
