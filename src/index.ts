@@ -2,6 +2,14 @@ import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
 import * as WebSocket from 'ws';
+import config from './config';
+import { ConnectionService } from './services/connection.service';
+import { LobbyService } from './services/lobby.service';
+import { Logger } from './utilities/logger';
+
+// Initialize Services
+const connectionService = new ConnectionService();
+const lobbyService = new LobbyService();
 
 const app = express();
 
@@ -12,19 +20,53 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws: WebSocket) => {
-  //connection is up, let's add a simple simple event
+  const playerId = connectionService.register(ws);
+
+  lobbyService.subscribe((lobbyIds: string[]) => {
+    ws.send(JSON.stringify({ lobbies: lobbyIds }));
+  });
+
+  ws.on('close', () => {
+    connectionService.unregister(playerId);
+    lobbyService.removePlayerFromAllLobbies(playerId);
+  });
+
   ws.on('message', (message: string) => {
-    //log the received message and send it back to the client
-    console.log('received: %s', message);
-    ws.send(`Hello, you sent -> ${message}`);
+    const request = JSON.parse(message);
+
+    // create new lobby
+    if (request.event === 'CREATE_NEW_LOBBY') {
+      if (lobbyService.playerIsInALobby(playerId)) {
+        Logger.error(
+          `Player ${playerId} could not create new lobby because player is already in another lobby.`
+        );
+        return;
+      }
+      const lobby = lobbyService.create();
+      lobbyService.addPlayerToLobby(playerId, lobby.id);
+    }
+
+    // join lobby
+    if (request.event === 'JOIN_LOBBY') {
+      if (!request.lobbyId) {
+        Logger.error(`'lobbyId' required to join a lobby.`);
+        return;
+      }
+      lobbyService.addPlayerToLobby(playerId, request.lobbyId);
+    }
+
+    // exit lobbies
+    if (request.event === 'EXIT_LOBBIES') {
+      lobbyService.removePlayerFromAllLobbies(playerId);
+    }
   });
 
   //send immediatly a feedback to the incoming connection
-  ws.send('Hi there, I am a WebSocket server');
+  ws.send('Connection established with web socket server.');
 });
 
 //start our server
-server.listen(process.env.PORT || 8000, () => {
+server.listen(config.app.port, () => {
   // figure out how to display port
   let displayedPort = '<port could not be determined>';
   const serverAddress = server.address();
@@ -34,7 +76,7 @@ server.listen(process.env.PORT || 8000, () => {
     displayedPort = serverAddress;
   }
 
-  console.log(`Server started on port ${displayedPort} :)`);
+  Logger.info(`Server started on port ${displayedPort} :)`);
 });
 
 // TODO: put in a better place
