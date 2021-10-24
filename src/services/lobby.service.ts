@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../utilities/logger';
 
 export class LobbyService {
-  private lobbies: Map<string, Lobby> = new Map();
+  lobbies: Map<string, Lobby> = new Map();
   private lobbySubs: Function[] = []; // subscriptions for updates to lobbies
 
   private publishLobbyUpdates(): void {
@@ -11,7 +11,7 @@ export class LobbyService {
     });
   }
 
-  subscribe(fn: (lobbies: string[]) => void) {
+  subscribe(fn: (lobbies: Lobby[]) => void) {
     this.lobbySubs.push(fn);
   }
 

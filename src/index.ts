@@ -4,12 +4,19 @@ import { AddressInfo } from 'net';
 import * as WebSocket from 'ws';
 import config from './config';
 import { ConnectionService } from './services/connection.service';
-import { LobbyService } from './services/lobby.service';
+import { GameEngineService } from './services/game-engine.service';
+import { InputEngine } from './services/input-engine';
+import { Lobby, LobbyService } from './services/lobby.service';
 import { Logger } from './utilities/logger';
 
 // Initialize Services
 const connectionService = new ConnectionService();
 const lobbyService = new LobbyService();
+const gameEngineService = new GameEngineService(
+  lobbyService,
+  connectionService
+);
+const inputEngine = new InputEngine(lobbyService, gameEngineService);
 
 const app = express();
 
@@ -22,8 +29,8 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws: WebSocket) => {
   const playerId = connectionService.register(ws);
 
-  lobbyService.subscribe((lobbyIds: string[]) => {
-    ws.send(JSON.stringify({ lobbies: lobbyIds }));
+  lobbyService.subscribe((lobbies: Lobby[]) => {
+    ws.send(JSON.stringify({ lobbies }));
   });
 
   ws.on('close', () => {
@@ -35,7 +42,7 @@ wss.on('connection', (ws: WebSocket) => {
     const request = JSON.parse(message);
 
     // create new lobby
-    if (request.event === 'CREATE_NEW_LOBBY') {
+    if (request.input === 'CREATE_NEW_LOBBY') {
       if (lobbyService.playerIsInALobby(playerId)) {
         Logger.error(
           `Player ${playerId} could not create new lobby because player is already in another lobby.`
@@ -43,11 +50,12 @@ wss.on('connection', (ws: WebSocket) => {
         return;
       }
       const lobby = lobbyService.create();
+      gameEngineService.create(lobby.id);
       lobbyService.addPlayerToLobby(playerId, lobby.id);
     }
 
     // join lobby
-    if (request.event === 'JOIN_LOBBY') {
+    if (request.input === 'JOIN_LOBBY') {
       if (!request.lobbyId) {
         Logger.error(`'lobbyId' required to join a lobby.`);
         return;
@@ -56,8 +64,14 @@ wss.on('connection', (ws: WebSocket) => {
     }
 
     // exit lobbies
-    if (request.event === 'EXIT_LOBBIES') {
+    if (request.input === 'EXIT_LOBBIES') {
       lobbyService.removePlayerFromAllLobbies(playerId);
+    }
+
+    //////////////////////////////////////////////////////////////////
+    // player input
+    if (request.input === 'PLAYER_INPUT') {
+      inputEngine.processInput(request.playerInput);
     }
   });
 

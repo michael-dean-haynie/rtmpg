@@ -3,7 +3,7 @@ import { WebSocket } from 'ws';
 import { Logger } from '../utilities/logger';
 
 export class ConnectionService {
-  private connections: Map<string, WebSocket> = new Map();
+  connections: Map<string, WebSocket> = new Map();
 
   register(webSocket: WebSocket) {
     const uuid = uuidv4();
