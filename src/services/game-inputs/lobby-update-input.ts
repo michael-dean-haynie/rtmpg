@@ -1,4 +1,5 @@
 import { GameEngine } from '../game-engine';
+import { AddPlayerEvent } from '../game-events/add-player-event';
 import { Lobby } from '../lobby.service';
 import { GameInput } from './game-input';
 
@@ -23,17 +24,22 @@ export class LobbyUpdateInput extends GameInput {
 
     // TOOD: actually figure out how to mutate game state so it is reversable
     addedPlayers?.forEach((playerId) => {
-      this.events.push({
-        eventType: 'ADD_PLAYER',
-        eventData: { playerId }
-      });
+      const event = new AddPlayerEvent(
+        {
+          player: AddPlayerEvent.generatePlayer(playerId)
+        },
+        this.gameEngine.state
+      );
+      event.apply();
+      this.events.push(event);
     });
 
     removedPlayers?.forEach((playerId) => {
-      this.events.push({
-        eventType: 'REMOVE_PLAYER',
-        eventData: { playerId }
-      });
+      // TODO: Implement
+      // this.events.push({
+      //   eventType: 'REMOVE_PLAYER',
+      //   eventData: { playerId }
+      // });
     });
   }
 }

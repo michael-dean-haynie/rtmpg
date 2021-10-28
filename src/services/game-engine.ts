@@ -46,7 +46,7 @@ export class GameEngine {
         return;
       }
 
-      webSocket.send(JSON.stringify({ event: event }));
+      webSocket.send(JSON.stringify({ event: event.data }));
     });
   }
 
