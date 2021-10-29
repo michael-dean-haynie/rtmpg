@@ -26,8 +26,10 @@ export class LobbyUpdateInput extends GameInput {
       (existingP) => !lobby?.players.includes(existingP)
     );
 
-    // TOOD: actually figure out how to mutate game state so it is reversable
     addedPlayers?.forEach((playerId) => {
+      // first send them the existing events so they can catch up
+      this.gameEngine.publishPastEventsToNewPlayer(playerId);
+
       const event = new AddPlayerEvent(
         {
           player: AddPlayerEvent.generatePlayer(playerId)

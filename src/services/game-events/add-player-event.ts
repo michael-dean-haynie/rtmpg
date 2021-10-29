@@ -18,7 +18,18 @@ export class AddPlayerEvent {
 
   static generatePlayer(id: string): any {
     return {
-      id
+      id,
+      position: {
+        x: this.getRandomIntInclusive(5, 95),
+        y: this.getRandomIntInclusive(5, 95)
+      },
+      direction: 'NONE'
     };
+  }
+
+  static getRandomIntInclusive(min: number, max: number): number {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
   }
 }

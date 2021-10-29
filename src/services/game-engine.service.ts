@@ -20,6 +20,7 @@ export class GameEngineService {
       this.lobbyService,
       this.connectionService
     );
+    this.gameEngines.set(uuid, gameEngine);
     Logger.info(`Created game ${uuid}.`);
     return uuid;
   }

@@ -1,5 +1,6 @@
 import { Logger } from '../utilities/logger';
 import { ConnectionService } from './connection.service';
+import { GameStartEvent } from './game-events/game-start-event';
 import { GameInput } from './game-inputs/game-input';
 import { LobbyUpdateInput } from './game-inputs/lobby-update-input';
 import { LobbyService } from './lobby.service';
@@ -20,6 +21,8 @@ export class GameEngine {
     private readonly lobbyService: LobbyService,
     private readonly connectionService: ConnectionService
   ) {
+    this.events.push(new GameStartEvent({ gameEngineId: this.gameId }));
+
     this.tick();
 
     // listen for lobby updates (added players / removed players)
@@ -46,6 +49,28 @@ export class GameEngine {
         return;
       }
 
+      webSocket.send(JSON.stringify({ event: event.data }));
+    });
+  }
+
+  publishPastEventsToNewPlayer(playerId: string) {
+    const lobby = this.lobbyService.lobbies.get(this.lobbyId);
+    if (!lobby) {
+      Logger.error(
+        `Could not get lobby ${this.lobbyId} because it does not exist.`
+      );
+      return;
+    }
+
+    const webSocket = this.connectionService.connections.get(playerId);
+    if (!webSocket) {
+      Logger.error(
+        `Could not get connection ${playerId} because it does not exist.`
+      );
+      return;
+    }
+
+    this.events.forEach((event) => {
       webSocket.send(JSON.stringify({ event: event.data }));
     });
   }

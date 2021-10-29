@@ -1,8 +1,5 @@
-pu@ implement and hook in event for removing player from game
+pu@ implement part of engine that processes events that are not triggered explicitly by player input (e.g. position changing toward current direction)
 
 then
 
-- test it out in postman
-- wire up event for moving position
-- test it in postman
 - start creating client with shared library for event sourcing
