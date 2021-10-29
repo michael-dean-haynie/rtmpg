@@ -1,5 +1,11 @@
 # RTMPG (Real Time Multiplayer Game)
 
+## Run Application Locally
+
+```sh
+npm run start:dev
+```
+
 ## References
 
 - https://khalilstemmler.com/blogs/typescript/node-starter-project/
