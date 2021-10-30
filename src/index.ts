@@ -23,8 +23,10 @@ const app = express();
 //initialize a simple http server
 const server = http.createServer(app);
 
+app.use(express.static('client'));
+
 //initialize the WebSocket server instance
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, path: '/ws' });
 
 wss.on('connection', (ws: WebSocket) => {
   const playerId = connectionService.register(ws);
