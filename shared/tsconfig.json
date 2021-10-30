@@ -1,24 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es6"],
-
-    "module": "system",
     "rootDir": "src",
-
-    "allowJs": true,
-    "outDir": "build/",
-
-    "esModuleInterop": true,
-
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "outDir": "./lib/",
     "noImplicitAny": true,
-    "skipLibCheck": true,
-
-    "declaration": true,
-    "declarationMap": true,
-    "composite": true
+    "sourceMap": true,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "composite": true,
+    "declarationMap": true
   },
-  "references": []
+  "include": ["src/**/*"]
 }

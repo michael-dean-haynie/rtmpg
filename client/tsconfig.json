@@ -1,28 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["es6"],
-
-    "module": "commonjs",
-    "rootDir": "src",
-
-    "resolveJsonModule": true,
-    "allowJs": true,
-    "outDir": "build",
-
-    "esModuleInterop": true,
-
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
     "noImplicitAny": true,
-    "skipLibCheck": true,
-    "composite": true
-  },
-  "references": [
-    {
-      "path": "../shared/tsconfig.json"
-      // add 'prepend' if you want to include the referenced project in your output file
-      // "prepend": true
+    "sourceMap": true,
+    "module": "es6",
+    "target": "es5",
+    "allowJs": true,
+    "moduleResolution": "node",
+    "baseUrl": ".", // This must be specified if "paths" is.
+    "paths": {
+      "shared/*": ["../shared/*"]
     }
-  ]
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../shared" }]
 }

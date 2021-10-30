@@ -2,7 +2,7 @@ import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
 import * as WebSocket from 'ws';
-import { TestObject } from '../../shared/src/test-object';
+import { TestObject } from '../../shared/test-object';
 import config from './config';
 import { ConnectionService } from './services/connection.service';
 import { GameEngineService } from './services/game-engine.service';
