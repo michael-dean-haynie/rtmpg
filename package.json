@@ -9,7 +9,8 @@
     "---------- FORMAT ----------": "",
     "prettier-format<NEEDSWORK>": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "---------- BUILD ----------": "",
-    "build:api": "rimraf ./api/build && tsc --project ./api/tsconfig.json",
+    "build:api": "rimraf ./api/build && cd api && tsc --build",
+    "build:client": "rimraf ./client/build && cd client && tsc --build",
     "---------- RUN ----------": "",
     "start:dev": "nodemon",
     "start<NEEDSWORK>": "npm run build && node build/index.js"
