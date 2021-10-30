@@ -1,6 +1,9 @@
+import connectLivereload from 'connect-livereload';
 import express from 'express';
 import * as http from 'http';
+import livereload from 'livereload';
 import { AddressInfo } from 'net';
+import * as path from 'path';
 import * as WebSocket from 'ws';
 import { TestObject } from '../../shared/lib/test-object';
 import config from './config';
@@ -25,6 +28,17 @@ const app = express();
 
 //initialize a simple http server
 const server = http.createServer(app);
+
+// Live Reload TODO: configure this per environment?
+const liveReloadServer = livereload.createServer();
+liveReloadServer.watch(path.resolve('client/dist'));
+console.log(path.resolve('client/dist'));
+app.use(connectLivereload());
+liveReloadServer.server.once('connection', () => {
+  setTimeout(() => {
+    liveReloadServer.refresh('/');
+  }, 100);
+});
 
 // expose public folder (serves html client/scripts)
 app.use(express.static('client/dist'));
