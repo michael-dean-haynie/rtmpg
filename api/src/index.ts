@@ -2,7 +2,7 @@ import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
 import * as WebSocket from 'ws';
-import { TestObject } from '../../shared/test-object';
+import { TestObject } from '../../shared/lib/test-object';
 import config from './config';
 import { ConnectionService } from './services/connection.service';
 import { GameEngineService } from './services/game-engine.service';
@@ -27,7 +27,7 @@ const app = express();
 const server = http.createServer(app);
 
 // expose public folder (serves html client/scripts)
-app.use(express.static('public'));
+app.use(express.static('client/dist'));
 
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server, path: '/ws' });

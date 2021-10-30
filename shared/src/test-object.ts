@@ -1,5 +1,5 @@
 export class TestObject {
   constructor() {
-    console.log('CREATING TEST OBJECT!');
+    console.log('CREATING A TEST OBJECT!');
   }
 }

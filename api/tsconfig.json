@@ -8,7 +8,7 @@
 
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "build",
+    "outDir": "dist",
 
     "esModuleInterop": true,
 
@@ -16,13 +16,17 @@
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "composite": true
+    "baseUrl": ".", // This must be specified if "paths" is.
+    "paths": {
+      "shared/*": ["../shared/*"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true // not great but makes it work
   },
   "references": [
     {
-      "path": "../shared/tsconfig.json"
-      // add 'prepend' if you want to include the referenced project in your output file
-      // "prepend": true
+      "path": "../shared"
     }
   ]
 }
