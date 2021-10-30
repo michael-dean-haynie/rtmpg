@@ -23,7 +23,8 @@ const app = express();
 //initialize a simple http server
 const server = http.createServer(app);
 
-app.use(express.static('client'));
+// expose public folder (serves html client/scripts)
+app.use(express.static('public'));
 
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server, path: '/ws' });

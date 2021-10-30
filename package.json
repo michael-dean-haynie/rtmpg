@@ -4,11 +4,15 @@
   "description": "Real Time Multiplayer Game",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf ./build && tsc",
+    "---------- LINT ----------": "",
+    "lint<NEEDSWORK>": "eslint . --ext .ts",
+    "---------- FORMAT ----------": "",
+    "prettier-format<NEEDSWORK>": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "---------- BUILD ----------": "",
+    "build:api": "rimraf ./api/build && tsc --project ./api/tsconfig.json",
+    "---------- RUN ----------": "",
     "start:dev": "nodemon",
-    "start": "npm run build && node build/index.js",
-    "lint": "eslint . --ext .ts",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "start<NEEDSWORK>": "npm run build && node build/index.js"
   },
   "repository": {
     "type": "git",
