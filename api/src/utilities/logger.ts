@@ -8,33 +8,37 @@ export class Logger {
     return levelPriority <= configuredPriority;
   }
 
+  private static log(message: string) {
+    console.log(`${new Date().toLocaleTimeString()} ${message}`);
+  }
+
   static error(message: string) {
     if (this.logLevelMatches('error')) {
-      console.log(`<app-error> ${message}`);
+      this.log(`<app-error> ${message}`);
     }
   }
 
   static warning(message: string) {
     if (this.logLevelMatches('warning')) {
-      console.log(`<app-warning> ${message}`);
+      this.log(`<app-warning> ${message}`);
     }
   }
 
   static info(message: string) {
     if (this.logLevelMatches('info')) {
-      console.log(`<app-info> ${message}`);
+      this.log(`<app-info> ${message}`);
     }
   }
 
   static debug(message: string) {
     if (this.logLevelMatches('debug')) {
-      console.log(`<app-debug> ${message}`);
+      this.log(`<app-debug> ${message}`);
     }
   }
 
   static trace(message: string) {
     if (this.logLevelMatches('trace')) {
-      console.log(`<app-trace> ${message}`);
+      this.log(`<app-trace> ${message}`);
     }
   }
 }

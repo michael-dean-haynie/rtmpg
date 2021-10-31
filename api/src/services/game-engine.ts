@@ -41,7 +41,7 @@ export class GameEngine {
       return;
     }
 
-    lobby.players.forEach((playerId) => {
+    lobby.connections.forEach((playerId) => {
       const webSocket = this.connectionService.connections.get(playerId);
       if (!webSocket) {
         Logger.error(

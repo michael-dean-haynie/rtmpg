@@ -2,7 +2,8 @@
 
 ## pu@
 
-- start working on shared library for processing events against game state
+- connect to api from client
+  - client should not need to pass their connection id or the game engine id in their requests. api should be able to resolve that shit
 
 ## Should Really Do
 

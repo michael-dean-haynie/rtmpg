@@ -19,11 +19,11 @@ export class LobbyUpdateInput extends GameInput {
     const existingPlayers = this.gameEngine.state.players.map(
       (plyr: any) => plyr.id
     ) as string[];
-    const addedPlayers = lobby?.players.filter(
+    const addedPlayers = lobby?.connections.filter(
       (lobbyP) => !existingPlayers.includes(lobbyP)
     );
     const removedPlayers = existingPlayers.filter(
-      (existingP) => !lobby?.players.includes(existingP)
+      (existingP) => !lobby?.connections.includes(existingP)
     );
 
     addedPlayers?.forEach((playerId) => {

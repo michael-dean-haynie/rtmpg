@@ -30,50 +30,50 @@ export class LobbyService {
     this.publishLobbyUpdates();
   }
 
-  removePlayerFromAllLobbies(uuid: string): void {
+  removeConnectionFromAllLobbies(uuid: string): void {
     this.lobbies.forEach((lobby) => {
-      if (lobby.players.includes(uuid)) {
-        lobby.players = lobby.players.filter((pid) => pid !== uuid);
-        Logger.info(`Removed player ${uuid} from lobby ${lobby.id}.`);
+      if (lobby.connections.includes(uuid)) {
+        lobby.connections = lobby.connections.filter((pid) => pid !== uuid);
+        Logger.info(`Removed connection ${uuid} from lobby ${lobby.id}.`);
       }
 
-      if (lobby.players.length === 0) {
+      if (lobby.connections.length === 0) {
         this.delete(lobby.id);
       }
     });
     this.publishLobbyUpdates();
   }
 
-  addPlayerToLobby(playerId: string, lobbyId: string): void {
-    // check if player is already in another lobby
-    if (this.playerIsInALobby(playerId)) {
+  addConnectionToLobby(connectionId: string, lobbyId: string): void {
+    // check if connection is already in another lobby
+    if (this.connectionIsInALobby(connectionId)) {
       Logger.error(
-        `Could not add player ${playerId} to lobby ${lobbyId} because player is already in another lobby.`
+        `Could not add connection ${connectionId} to lobby ${lobbyId} because connection is already in another lobby.`
       );
       return;
     }
 
-    // try to add player if lobby exists
+    // try to add connection if lobby exists
     const lobby = this.lobbies.get(lobbyId);
     if (lobby) {
-      lobby.players.push(playerId);
-      Logger.info(`Added player ${playerId} to lobby ${lobby.id}.`);
+      lobby.connections.push(connectionId);
+      Logger.info(`Added connection ${connectionId} to lobby ${lobby.id}.`);
       this.publishLobbyUpdates();
     } else {
       Logger.error(
-        `Could not add player ${playerId} to lobby ${lobbyId} because lobby does not exist.`
+        `Could not add connection ${connectionId} to lobby ${lobbyId} because lobby does not exist.`
       );
     }
   }
 
-  playerIsInALobby(playerId: string): boolean {
+  connectionIsInALobby(connectionId: string): boolean {
     return Array.from(this.lobbies.values()).some((rm) => {
-      return rm.players.includes(playerId);
+      return rm.connections.includes(connectionId);
     });
   }
 }
 
 export class Lobby {
-  players: string[] = []; // connection uuids
+  connections: string[] = []; // connection uuids
   id: string = uuidv4();
 }

@@ -4,16 +4,15 @@ import * as http from 'http';
 import livereload from 'livereload';
 import { AddressInfo } from 'net';
 import * as path from 'path';
+import { ClientMessage } from 'shared/lib/contracts/client/client-message';
 import * as WebSocket from 'ws';
-import { TestObject } from '../../shared/lib/test-object';
 import config from './config';
+import { ApiMessageService } from './services/api-message.service';
 import { ConnectionService } from './services/connection.service';
 import { GameEngineService } from './services/game-engine.service';
 import { InputEngine } from './services/input-engine';
 import { Lobby, LobbyService } from './services/lobby.service';
 import { Logger } from './utilities/logger';
-
-const testObj = new TestObject();
 
 // Initialize Servicesz
 const connectionService = new ConnectionService();
@@ -23,6 +22,7 @@ const gameEngineService = new GameEngineService(
   connectionService
 );
 const inputEngine = new InputEngine(lobbyService, gameEngineService);
+const apiMessageService = new ApiMessageService();
 
 const app = express();
 
@@ -32,7 +32,6 @@ const server = http.createServer(app);
 // Live Reload TODO: configure this per environment?
 const liveReloadServer = livereload.createServer();
 liveReloadServer.watch(path.resolve('client/dist'));
-console.log(path.resolve('client/dist'));
 app.use(connectLivereload());
 liveReloadServer.server.once('connection', () => {
   setTimeout(() => {
@@ -50,20 +49,20 @@ wss.on('connection', (ws: WebSocket) => {
   const playerId = connectionService.register(ws);
 
   lobbyService.subscribe((lobbies: Lobby[]) => {
-    ws.send(JSON.stringify({ lobbies }));
+    apiMessageService.send(ws, { messageType: 'LOBBIES_UPDATE', lobbies });
   });
 
   ws.on('close', () => {
     connectionService.unregister(playerId);
-    lobbyService.removePlayerFromAllLobbies(playerId);
+    lobbyService.removeConnectionFromAllLobbies(playerId);
   });
 
   ws.on('message', (message: string) => {
-    const request = JSON.parse(message);
+    const request = JSON.parse(message) as ClientMessage;
 
     // create new lobby
-    if (request.input === 'CREATE_NEW_LOBBY') {
-      if (lobbyService.playerIsInALobby(playerId)) {
+    if (request.messageType === 'CREATE_NEW_LOBBY') {
+      if (lobbyService.connectionIsInALobby(playerId)) {
         Logger.error(
           `Player ${playerId} could not create new lobby because player is already in another lobby.`
         );
@@ -71,32 +70,35 @@ wss.on('connection', (ws: WebSocket) => {
       }
       const lobby = lobbyService.create();
       gameEngineService.create(lobby.id);
-      lobbyService.addPlayerToLobby(playerId, lobby.id);
+      lobbyService.addConnectionToLobby(playerId, lobby.id);
     }
 
     // join lobby
-    if (request.input === 'JOIN_LOBBY') {
+    if (request.messageType === 'JOIN_LOBBY') {
       if (!request.lobbyId) {
         Logger.error(`'lobbyId' required to join a lobby.`);
         return;
       }
-      lobbyService.addPlayerToLobby(playerId, request.lobbyId);
+      lobbyService.addConnectionToLobby(playerId, request.lobbyId);
     }
 
     // exit lobbies
-    if (request.input === 'EXIT_LOBBIES') {
-      lobbyService.removePlayerFromAllLobbies(playerId);
+    if (request.messageType === 'EXIT_LOBBIES') {
+      lobbyService.removeConnectionFromAllLobbies(playerId);
     }
 
     //////////////////////////////////////////////////////////////////
     // player input
-    if (request.input === 'PLAYER_INPUT') {
-      inputEngine.processInput(request.playerInput);
+    if (request.messageType === 'PLAYER_INPUT') {
+      inputEngine.processInput(playerId, request.playerInput);
     }
   });
 
   //send immediatly a feedback to the incoming connection
-  ws.send('Connection established with web socket server.');
+  apiMessageService.send(ws, {
+    messageType: 'CONNECTION_ESTABLISHED',
+    connectionId: playerId
+  });
 });
 
 //start our server
