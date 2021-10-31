@@ -5,34 +5,34 @@ import {
 import { LobbiesComponent } from './components/lobbies.component';
 import { ClientMessageService } from './services/client-message.service';
 
-// Set Up Services
-const clientMessageService = new ClientMessageService();
-
-// Set Up Components
-const lobbiesComponent = new LobbiesComponent(document);
-
-// Create New Lobby Button
-const newLobbyButton = document.createElement('button');
-newLobbyButton.id = 'createNewLobbyBtn';
-newLobbyButton.innerText = 'Create New Lobby';
-document.body.appendChild(newLobbyButton);
-
-// Create Exit Lobbies Button
-const exitLobbiesButton = document.createElement('button');
-exitLobbiesButton.id = 'exitLobbiesBtn';
-exitLobbiesButton.innerText = 'Exit Lobbies';
-document.body.appendChild(exitLobbiesButton);
-
 // Wire Up Web Socket
 const webSocket = new WebSocket('ws://localhost:8000/ws');
 webSocket.onopen = () => {
+  // Create New Lobby Button
+  const newLobbyButton = document.createElement('button');
+  newLobbyButton.id = 'createNewLobbyBtn';
+  newLobbyButton.innerText = 'Create New Lobby';
+  document.body.appendChild(newLobbyButton);
+
+  // Create Exit Lobbies Button
+  const exitLobbiesButton = document.createElement('button');
+  exitLobbiesButton.id = 'exitLobbiesBtn';
+  exitLobbiesButton.innerText = 'Exit Lobbies';
+  document.body.appendChild(exitLobbiesButton);
+
+  // Set Up Services
+  const clientMessageService = new ClientMessageService(webSocket);
+
+  // Set Up Components
+  const lobbiesComponent = new LobbiesComponent(document, clientMessageService);
+
   // Outgoing Messages
   newLobbyButton.onclick = () => {
-    clientMessageService.send(webSocket, { messageType: 'CREATE_NEW_LOBBY' });
+    clientMessageService.send({ messageType: 'CREATE_NEW_LOBBY' });
   };
 
   exitLobbiesButton.onclick = () => {
-    clientMessageService.send(webSocket, { messageType: 'EXIT_LOBBIES' });
+    clientMessageService.send({ messageType: 'EXIT_LOBBIES' });
   };
 
   // Incomming Messages

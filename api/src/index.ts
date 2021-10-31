@@ -4,7 +4,10 @@ import * as http from 'http';
 import livereload from 'livereload';
 import { AddressInfo } from 'net';
 import * as path from 'path';
-import { ClientMessage } from 'shared/lib/contracts/client/client-message';
+import {
+  ClientMessage,
+  JoinLobbyMessage
+} from 'shared/lib/contracts/client/client-message';
 import * as WebSocket from 'ws';
 import config from './config';
 import { ApiMessageService } from './services/api-message.service';
@@ -75,11 +78,12 @@ wss.on('connection', (ws: WebSocket) => {
 
     // join lobby
     if (request.messageType === 'JOIN_LOBBY') {
-      if (!request.lobbyId) {
+      const message = request as JoinLobbyMessage;
+      if (!message.lobbyId) {
         Logger.error(`'lobbyId' required to join a lobby.`);
         return;
       }
-      lobbyService.addConnectionToLobby(playerId, request.lobbyId);
+      lobbyService.addConnectionToLobby(playerId, message.lobbyId);
     }
 
     // exit lobbies

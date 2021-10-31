@@ -4,6 +4,11 @@ export interface ClientMessage {
   [key: string]: any;
 }
 
+export interface JoinLobbyMessage extends ClientMessage {
+  messageType: 'JOIN_LOBBY';
+  lobbyId: string;
+}
+
 export type ClientMessageType =
   | 'CREATE_NEW_LOBBY'
   | 'JOIN_LOBBY'

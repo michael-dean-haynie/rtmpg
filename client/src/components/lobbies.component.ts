@@ -1,4 +1,6 @@
 import { Lobby } from 'shared/src/contracts/api/lobby';
+import { JoinLobbyMessage } from 'shared/src/contracts/client/client-message';
+import { ClientMessageService } from 'src/services/client-message.service';
 
 export class LobbiesComponent {
   private _lobbiesContainerId = 'lobbies';
@@ -11,7 +13,10 @@ export class LobbiesComponent {
     this.updateDom();
   }
 
-  constructor(private _document: Document) {
+  constructor(
+    private _document: Document,
+    private _clientMessageService: ClientMessageService
+  ) {
     this.updateDom();
   }
 
@@ -25,6 +30,18 @@ export class LobbiesComponent {
       const lobbyIdSpan = this._document.createElement('span');
       lobbyIdSpan.innerText = lobby.id;
       lobbyListItem.appendChild(lobbyIdSpan);
+
+      // show button to join lobby
+      const joinLobbyButton = this._document.createElement('button');
+      joinLobbyButton.innerText = 'Join Lobby';
+      joinLobbyButton.onclick = () => {
+        const message: JoinLobbyMessage = {
+          messageType: 'JOIN_LOBBY',
+          lobbyId: lobby.id
+        };
+        this._clientMessageService.send(message);
+      };
+      lobbyListItem.appendChild(joinLobbyButton);
 
       // list connections
       if (lobby.connections?.length) {
