@@ -11,6 +11,10 @@ export class LobbyService {
     });
   }
 
+  manualPublish(): void {
+    this.publishLobbyUpdates();
+  }
+
   subscribe(fn: (lobbies: Lobby[]) => void) {
     this.lobbySubs.push(fn);
   }

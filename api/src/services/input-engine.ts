@@ -1,3 +1,5 @@
+import { PlayerInput } from 'shared/lib/contracts/client/client-message';
+import { GSDirection } from 'shared/lib/game-state';
 import { Logger } from '../utilities/logger';
 import { GameEngineService } from './game-engine.service';
 import { ChangeDirectionInput } from './game-inputs/change-direction-input';
@@ -9,7 +11,7 @@ export class InputEngine {
     private readonly gameEngineService: GameEngineService
   ) {}
 
-  processInput(playerId: string, input: any) {
+  processInput(playerId: string, playerInput: PlayerInput) {
     // find lobby
     const lobbies = Array.from(this.lobbyService.lobbies.values());
     const lobby = lobbies.find((lob) => lob.connections.includes(playerId));
@@ -27,7 +29,8 @@ export class InputEngine {
     }
 
     // do the things
-    if (input.type === 'CHANGE_DIRECTION') {
+    if (playerInput.inputType === 'CHANGE_DIRECTION') {
+      const newDirection = playerInput.value as GSDirection;
       const oldDirection = gameEngine.state.players.find(
         (plyr: any) => plyr.id === playerId
       ).direction;
@@ -35,7 +38,7 @@ export class InputEngine {
       const inputObj = new ChangeDirectionInput(gameEngine, {
         playerId,
         oldDirection,
-        newDirection: input.newDirection
+        newDirection
       });
 
       gameEngine.inputQueue.push(inputObj);

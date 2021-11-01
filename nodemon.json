@@ -1,6 +1,6 @@
 {
   "watch": ["api/src", "client/src", "shared/src"],
-  "ext": ".ts,.js,.html",
+  "ext": ".ts,.js,.html,.css",
   "ignore": [],
   "exec": "npm run build:all && ts-node --project api/tsconfig.json api/src/index.ts"
 }

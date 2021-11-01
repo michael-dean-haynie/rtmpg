@@ -11,4 +11,18 @@ export interface LobbiesUpdateMessage extends ApiMessage {
   lobbies: Lobby[];
 }
 
-export type ApiMessageType = 'CONNECTION_ESTABLISHED' | 'LOBBIES_UPDATE';
+export interface EventsRecapMessage extends ApiMessage {
+  messageType: 'EVENTS_RECAP';
+  events: any[];
+}
+
+export interface GameEventMessage extends ApiMessage {
+  messageType: 'GAME_EVENT';
+  event: any;
+}
+
+export type ApiMessageType =
+  | 'CONNECTION_ESTABLISHED'
+  | 'LOBBIES_UPDATE'
+  | 'EVENTS_RECAP'
+  | 'GAME_EVENT';

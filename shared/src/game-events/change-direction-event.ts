@@ -1,4 +1,6 @@
-export class ChangeDirectionEvent {
+import { GameEvent } from './game-event';
+
+export class ChangeDirectionEvent implements GameEvent {
   constructor(public data: any, private gameState: any) {
     this.data.eventType = 'CHANGE_DIRECTION';
   }

@@ -6,7 +6,8 @@ import { AddressInfo } from 'net';
 import * as path from 'path';
 import {
   ClientMessage,
-  JoinLobbyMessage
+  JoinLobbyMessage,
+  PlayerInputMessage
 } from 'shared/lib/contracts/client/client-message';
 import * as WebSocket from 'ws';
 import config from './config';
@@ -20,12 +21,13 @@ import { Logger } from './utilities/logger';
 // Initialize Servicesz
 const connectionService = new ConnectionService();
 const lobbyService = new LobbyService();
+const apiMessageService = new ApiMessageService();
 const gameEngineService = new GameEngineService(
   lobbyService,
-  connectionService
+  connectionService,
+  apiMessageService
 );
 const inputEngine = new InputEngine(lobbyService, gameEngineService);
-const apiMessageService = new ApiMessageService();
 
 const app = express();
 
@@ -54,17 +56,18 @@ wss.on('connection', (ws: WebSocket) => {
   lobbyService.subscribe((lobbies: Lobby[]) => {
     apiMessageService.send(ws, { messageType: 'LOBBIES_UPDATE', lobbies });
   });
+  lobbyService.manualPublish();
 
   ws.on('close', () => {
     connectionService.unregister(playerId);
     lobbyService.removeConnectionFromAllLobbies(playerId);
   });
 
-  ws.on('message', (message: string) => {
-    const request = JSON.parse(message) as ClientMessage;
+  ws.on('message', (jsonMessage: string) => {
+    const message = JSON.parse(jsonMessage) as ClientMessage;
 
     // create new lobby
-    if (request.messageType === 'CREATE_NEW_LOBBY') {
+    if (message.messageType === 'CREATE_NEW_LOBBY') {
       if (lobbyService.connectionIsInALobby(playerId)) {
         Logger.error(
           `Player ${playerId} could not create new lobby because player is already in another lobby.`
@@ -77,24 +80,29 @@ wss.on('connection', (ws: WebSocket) => {
     }
 
     // join lobby
-    if (request.messageType === 'JOIN_LOBBY') {
-      const message = request as JoinLobbyMessage;
-      if (!message.lobbyId) {
+    if (message.messageType === 'JOIN_LOBBY') {
+      const msg = message as JoinLobbyMessage;
+      if (!msg.lobbyId) {
         Logger.error(`'lobbyId' required to join a lobby.`);
         return;
       }
-      lobbyService.addConnectionToLobby(playerId, message.lobbyId);
+      lobbyService.addConnectionToLobby(playerId, msg.lobbyId);
     }
 
     // exit lobbies
-    if (request.messageType === 'EXIT_LOBBIES') {
+    if (message.messageType === 'EXIT_LOBBIES') {
       lobbyService.removeConnectionFromAllLobbies(playerId);
     }
 
     //////////////////////////////////////////////////////////////////
     // player input
-    if (request.messageType === 'PLAYER_INPUT') {
-      inputEngine.processInput(playerId, request.playerInput);
+    if (message.messageType === 'PLAYER_INPUT') {
+      const msg = message as PlayerInputMessage;
+      if (!msg.playerInput) {
+        Logger.error(`'playerInput' required to submit player input.`);
+        return;
+      }
+      inputEngine.processInput(playerId, msg.playerInput);
     }
   });
 

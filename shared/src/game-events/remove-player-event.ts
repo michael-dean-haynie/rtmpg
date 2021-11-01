@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
+import { GameEvent } from './game-event';
 
-export class RemovePlayerEvent {
+export class RemovePlayerEvent implements GameEvent {
   constructor(public data: any, private gameState: any) {
     this.data.eventType = 'REMOVE_PLAYER';
   }

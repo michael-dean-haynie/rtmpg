@@ -1,9 +1,10 @@
+import { GSDirection } from 'shared/lib/game-state';
+import { ChangeDirectionEvent } from '../../../../shared/lib/game-events/change-direction-event';
 import { GameEngine } from '../game-engine';
-import { ChangeDirectionEvent } from '../game-events/change-direction-event';
 import { GameInput } from './game-input';
 
 export class ChangeDirectionInput extends GameInput {
-  constructor(gameEngine: GameEngine, private data: any) {
+  constructor(gameEngine: GameEngine, private data: ChangeDirectionInputData) {
     super(gameEngine);
   }
 
@@ -20,4 +21,10 @@ export class ChangeDirectionInput extends GameInput {
     event.apply();
     this.events.push(event);
   }
+}
+
+export interface ChangeDirectionInputData {
+  playerId: string;
+  oldDirection: GSDirection;
+  newDirection: GSDirection;
 }

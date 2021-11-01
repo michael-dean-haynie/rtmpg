@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../utilities/logger';
+import { ApiMessageService } from './api-message.service';
 import { ConnectionService } from './connection.service';
 import { GameEngine } from './game-engine';
 import { LobbyService } from './lobby.service';
@@ -9,7 +10,8 @@ export class GameEngineService {
 
   constructor(
     private readonly lobbyService: LobbyService,
-    private readonly connectionService: ConnectionService
+    private readonly connectionService: ConnectionService,
+    private readonly apiMessageService: ApiMessageService
   ) {}
 
   create(lobbyId: string): string {
@@ -18,7 +20,8 @@ export class GameEngineService {
       uuid,
       lobbyId,
       this.lobbyService,
-      this.connectionService
+      this.connectionService,
+      this.apiMessageService
     );
     this.gameEngines.set(uuid, gameEngine);
     Logger.info(`Created game ${uuid}.`);

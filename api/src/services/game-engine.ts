@@ -1,7 +1,9 @@
+import { EventsRecapMessage } from '../../../shared/lib/contracts/api/api-message';
+import { GameStartEvent } from '../../../shared/lib/game-events/game-start-event';
+import { MovePlayerEvent } from '../../../shared/lib/game-events/move-player-event';
 import { Logger } from '../utilities/logger';
+import { ApiMessageService } from './api-message.service';
 import { ConnectionService } from './connection.service';
-import { GameStartEvent } from './game-events/game-start-event';
-import { MovePlayerEvent } from './game-events/move-player-event';
 import { GameInput } from './game-inputs/game-input';
 import { LobbyUpdateInput } from './game-inputs/lobby-update-input';
 import { LobbyService } from './lobby.service';
@@ -20,7 +22,8 @@ export class GameEngine {
     readonly gameId: string,
     public readonly lobbyId: string,
     private readonly lobbyService: LobbyService,
-    private readonly connectionService: ConnectionService
+    private readonly connectionService: ConnectionService,
+    private readonly apiMessageService: ApiMessageService
   ) {
     this.events.push(new GameStartEvent({ gameEngineId: this.gameId }));
 
@@ -50,7 +53,11 @@ export class GameEngine {
         return;
       }
 
-      webSocket.send(JSON.stringify({ event: event.data }));
+      // webSocket.send(JSON.stringify({ event: event.data }));'
+      this.apiMessageService.send(webSocket, {
+        messageType: 'GAME_EVENT',
+        event: event.data
+      });
     });
   }
 
@@ -71,9 +78,12 @@ export class GameEngine {
       return;
     }
 
-    this.events.forEach((event) => {
-      webSocket.send(JSON.stringify({ event: event.data }));
-    });
+    const message: EventsRecapMessage = {
+      messageType: 'EVENTS_RECAP',
+      events: this.events
+    };
+
+    this.apiMessageService.send(webSocket, message);
   }
 
   private tick() {
@@ -99,7 +109,7 @@ export class GameEngine {
 
     // schedule next tick
     this.tickNumber++;
-    setTimeout(this.tick.bind(this), 50);
+    setTimeout(this.tick.bind(this), 20);
   }
 
   private movePlayers(): void {

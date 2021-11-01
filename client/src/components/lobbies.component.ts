@@ -1,5 +1,5 @@
-import { Lobby } from 'shared/src/contracts/api/lobby';
-import { JoinLobbyMessage } from 'shared/src/contracts/client/client-message';
+import { Lobby } from 'shared/lib/contracts/api/lobby';
+import { JoinLobbyMessage } from 'shared/lib/contracts/client/client-message';
 import { ClientMessageService } from 'src/services/client-message.service';
 
 export class LobbiesComponent {

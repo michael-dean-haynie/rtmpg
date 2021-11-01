@@ -1,4 +1,6 @@
-export class MovePlayerEvent {
+import { GameEvent } from './game-event';
+
+export class MovePlayerEvent implements GameEvent {
   constructor(public data: any, private gameState: any) {
     this.data.eventType = 'MOVE_PLAYER';
   }

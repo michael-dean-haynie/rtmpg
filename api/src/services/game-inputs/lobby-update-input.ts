@@ -1,7 +1,7 @@
+import { AddPlayerEvent } from '../../../../shared/lib/game-events/add-player-event';
+import { RemovePlayerEvent } from '../../../../shared/lib/game-events/remove-player-event';
 import { Logger } from '../../utilities/logger';
 import { GameEngine } from '../game-engine';
-import { AddPlayerEvent } from '../game-events/add-player-event';
-import { RemovePlayerEvent } from '../game-events/remove-player-event';
 import { Lobby } from '../lobby.service';
 import { GameInput } from './game-input';
 
