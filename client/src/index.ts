@@ -31,6 +31,7 @@ webSocket.onopen = () => {
   const exitLobbiesButton = document.getElementById('exitLobbiesBtn');
   exitLobbiesButton.onclick = () => {
     clientMessageService.send({ messageType: 'EXIT_LOBBIES' });
+    canvasComponent.handleCurrentPlayerExit();
   };
 
   // Incomming Messages

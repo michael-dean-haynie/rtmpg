@@ -97,7 +97,7 @@ export class GameEngine {
       this.inputQueue.shift()?.process();
     }
 
-    // TODO: process continuation-like events (events that don't require input to happen)
+    // process continuation-like events (events that don't require input to happen)
     this.movePlayers();
 
     // gather tick metadata

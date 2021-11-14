@@ -24,7 +24,7 @@ export class CanvasComponent {
     this.pieceRad = 5 * this.multiplier; // to make board bigger (temp)
   }
 
-  newGame(): void {
+  handleCurrentPlayerExit(): void {
     this.clearCanvas();
   }
 
