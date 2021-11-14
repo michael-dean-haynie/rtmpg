@@ -4,6 +4,11 @@ export interface ClientMessage {
   [key: string]: any;
 }
 
+export interface PlayerNameMessage extends ClientMessage {
+  messageType: 'PLAYER_NAME';
+  playerName: string;
+}
+
 export interface JoinLobbyMessage extends ClientMessage {
   messageType: 'JOIN_LOBBY';
   lobbyId: string;
@@ -20,6 +25,7 @@ export interface PlayerInput {
 
 // types (used as enums)
 export type ClientMessageType =
+  | 'PLAYER_NAME'
   | 'CREATE_NEW_LOBBY'
   | 'JOIN_LOBBY'
   | 'EXIT_LOBBIES'

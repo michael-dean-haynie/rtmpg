@@ -7,6 +7,7 @@ export interface GSPlayer {
   position: GSPosition;
   direction: GSDirection;
   color: string;
+  name: string;
 }
 
 export interface GSPosition {

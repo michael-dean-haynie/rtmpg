@@ -2,11 +2,7 @@
 
 ## pu@
 
-- When player leaves a lobby, the board should disappear
-- players should first enter their name it it should be in text hovering over their piece
-- lobby area should only show when player is not in a game
-- lobbies should have random name assigned or take player input upon creation
-- player names should be shown in lobby section instead of uuids
+- asdf
 
 ## Should Really Do
 
@@ -18,3 +14,5 @@
 ## Might Consider
 
 - use [tsconfig inheritance](https://www.typescriptlang.org/tsconfig#extends)
+
+services/Lobby

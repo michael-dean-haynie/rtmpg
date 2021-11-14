@@ -1,4 +1,7 @@
+import { Connection } from './connection';
+
 export interface Lobby {
-  connections: string[];
+  connections: Connection[];
   id: string;
+  name?: string;
 }

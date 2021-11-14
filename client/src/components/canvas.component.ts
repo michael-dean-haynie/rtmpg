@@ -36,12 +36,23 @@ export class CanvasComponent {
   }
 
   private paintPlayer(player: GSPlayer): void {
+    // paint square
     const originX = player.position.x * this.multiplier - this.pieceRad;
     const originY =
       this.height - player.position.y * this.multiplier - this.pieceRad;
     const sideLength = this.pieceRad * 2;
     this.ctx.fillStyle = player.color;
     this.ctx.fillRect(originX, originY, sideLength, sideLength);
+
+    // paint name
+    this.ctx.font = '12px serif';
+    this.ctx.fillStyle = 'black';
+    this.ctx.textAlign = 'center';
+    this.ctx.fillText(
+      player.name,
+      player.position.x * this.multiplier,
+      this.height - player.position.y * this.multiplier
+    );
   }
 
   private clearCanvas(): void {

@@ -1,8 +1,8 @@
+import { Lobby } from 'shared/src/contracts/api/lobby';
 import { AddPlayerEvent } from '../../../../shared/lib/game-events/add-player-event';
 import { RemovePlayerEvent } from '../../../../shared/lib/game-events/remove-player-event';
 import { Logger } from '../../utilities/logger';
 import { GameEngine } from '../game-engine';
-import { Lobby } from '../lobby.service';
 import { GameInput } from './game-input';
 
 export class LobbyUpdateInput extends GameInput {
@@ -17,22 +17,26 @@ export class LobbyUpdateInput extends GameInput {
 
     // check for new players and removed players
     const existingPlayers = this.gameEngine.state.players.map(
-      (plyr: any) => plyr.id
-    ) as string[];
+      (plyr) => plyr.id
+    );
     const addedPlayers = lobby?.connections.filter(
-      (lobbyP) => !existingPlayers.includes(lobbyP)
+      (lobbyConn) => !existingPlayers.includes(lobbyConn.id)
     );
     const removedPlayers = existingPlayers.filter(
-      (existingP) => !lobby?.connections.includes(existingP)
+      (existingP) =>
+        !lobby?.connections.map((conn) => conn.id).includes(existingP)
     );
 
-    addedPlayers?.forEach((playerId) => {
+    addedPlayers?.forEach((connection) => {
       // first send them the existing events so they can catch up
-      this.gameEngine.publishPastEventsToNewPlayer(playerId);
+      this.gameEngine.publishPastEventsToNewPlayer(connection.id);
 
       const event = new AddPlayerEvent(
         {
-          player: AddPlayerEvent.generatePlayer(playerId)
+          player: AddPlayerEvent.generatePlayer(
+            connection.id,
+            connection.playerName as string
+          )
         },
         this.gameEngine.state
       );

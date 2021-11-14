@@ -1,3 +1,4 @@
+import { GameState } from 'shared/src/game-state';
 import { EventsRecapMessage } from '../../../shared/lib/contracts/api/api-message';
 import { GameStartEvent } from '../../../shared/lib/game-events/game-start-event';
 import { MovePlayerEvent } from '../../../shared/lib/game-events/move-player-event';
@@ -12,7 +13,7 @@ export class GameEngine {
   private start = 0; // ms since unix epoch (initialized during first tick)
   private tickNumber = 0;
 
-  state: any = {
+  state: GameState = {
     players: []
   };
   inputQueue: GameInput[] = [];
@@ -70,7 +71,11 @@ export class GameEngine {
       return;
     }
 
-    const webSocket = this.connectionService.connections.get(playerId);
+    const connection = this.connectionService.getConnectionById(playerId);
+    if (connection === undefined) {
+      return;
+    }
+    const webSocket = this.connectionService.connections.get(connection);
     if (!webSocket) {
       Logger.error(
         `Could not get connection ${playerId} because it does not exist.`

@@ -1,3 +1,4 @@
+import * as faker from 'faker';
 import {
   ApiMessage,
   EventsRecapMessage,
@@ -9,6 +10,19 @@ import { LobbiesComponent } from './components/lobbies.component';
 import { ClientGameEngine } from './services/client-game-engine';
 import { ClientMessageService } from './services/client-message.service';
 import { PlayerController } from './services/player-controller';
+
+// Prompt player for name
+function promptPlayerForName(): string {
+  let name = null;
+  const defaultName = `${faker.name.firstName()} ${faker.name.lastName()}`;
+  name = window.prompt('Please enter your player name:', defaultName);
+  if (typeof name === 'string' && name.trim().length) {
+    return name;
+  } else {
+    return promptPlayerForName();
+  }
+}
+const playerName = promptPlayerForName();
 
 // Wire Up Web Socket
 const webSocket = new WebSocket('ws://localhost:8000/ws');
@@ -22,16 +36,29 @@ webSocket.onopen = () => {
   const lobbiesComponent = new LobbiesComponent(document, clientMessageService);
   const canvasComponent = new CanvasComponent(document);
 
+  // Transmit player name to server
+  clientMessageService.send({ messageType: 'PLAYER_NAME', playerName });
+
   // Outgoing Messages
-  const newLobbyButton = document.getElementById('newLobbyBtn');
+  const newLobbyButton = document.getElementById(
+    'newLobbyBtn'
+  ) as HTMLButtonElement;
   newLobbyButton.onclick = () => {
     clientMessageService.send({ messageType: 'CREATE_NEW_LOBBY' });
+    newLobbyButton.disabled = true;
+    exitLobbiesButton.disabled = false;
+    lobbiesComponent.setJoinLobbyButtonsDisabled(true);
   };
 
-  const exitLobbiesButton = document.getElementById('exitLobbiesBtn');
+  const exitLobbiesButton = document.getElementById(
+    'exitLobbiesBtn'
+  ) as HTMLButtonElement;
   exitLobbiesButton.onclick = () => {
     clientMessageService.send({ messageType: 'EXIT_LOBBIES' });
     canvasComponent.handleCurrentPlayerExit();
+    exitLobbiesButton.disabled = true;
+    newLobbyButton.disabled = false;
+    lobbiesComponent.setJoinLobbyButtonsDisabled(false);
   };
 
   // Incomming Messages

@@ -3,7 +3,7 @@ import { GSDirection } from 'shared/src/game-state';
 import { ClientMessageService } from './client-message.service';
 
 export class PlayerController {
-  private pks: GSDirection[] = []; // pressed key stack
+  private pks: GSDirection[] = ['NONE']; // pressed key stack
   private keyToDirectionMap: Map<string, GSDirection> = new Map([
     ['ArrowUp', 'UP'],
     ['ArrowRight', 'RIGHT'],

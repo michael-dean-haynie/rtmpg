@@ -18,9 +18,10 @@ export class AddPlayerEvent implements GameEvent {
     );
   }
 
-  static generatePlayer(id: string): GSPlayer {
+  static generatePlayer(id: string, name: string): GSPlayer {
     return {
       id,
+      name,
       position: {
         x: this.getRandomIntInclusive(5, 95),
         y: this.getRandomIntInclusive(5, 95)

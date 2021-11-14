@@ -7,20 +7,22 @@ import * as path from 'path';
 import {
   ClientMessage,
   JoinLobbyMessage,
-  PlayerInputMessage
+  PlayerInputMessage,
+  PlayerNameMessage
 } from 'shared/lib/contracts/client/client-message';
+import { Lobby } from 'shared/src/contracts/api/lobby';
 import * as WebSocket from 'ws';
 import config from './config';
 import { ApiMessageService } from './services/api-message.service';
 import { ConnectionService } from './services/connection.service';
 import { GameEngineService } from './services/game-engine.service';
 import { InputEngine } from './services/input-engine';
-import { Lobby, LobbyService } from './services/lobby.service';
+import { LobbyService } from './services/lobby.service';
 import { Logger } from './utilities/logger';
 
-// Initialize Servicesz
+// Initialize Services
 const connectionService = new ConnectionService();
-const lobbyService = new LobbyService();
+const lobbyService = new LobbyService(connectionService);
 const apiMessageService = new ApiMessageService();
 const gameEngineService = new GameEngineService(
   lobbyService,
@@ -51,7 +53,7 @@ app.use(express.static('client/dist'));
 const wss = new WebSocket.Server({ server, path: '/ws' });
 
 wss.on('connection', (ws: WebSocket) => {
-  const playerId = connectionService.register(ws);
+  const { id: connectionId } = connectionService.register(ws);
 
   lobbyService.subscribe((lobbies: Lobby[]) => {
     apiMessageService.send(ws, { messageType: 'LOBBIES_UPDATE', lobbies });
@@ -59,24 +61,34 @@ wss.on('connection', (ws: WebSocket) => {
   lobbyService.manualPublish();
 
   ws.on('close', () => {
-    connectionService.unregister(playerId);
-    lobbyService.removeConnectionFromAllLobbies(playerId);
+    connectionService.unregister(connectionId);
+    lobbyService.removeConnectionFromAllLobbies(connectionId);
   });
 
   ws.on('message', (jsonMessage: string) => {
     const message = JSON.parse(jsonMessage) as ClientMessage;
 
+    // player name
+    if (message.messageType === 'PLAYER_NAME') {
+      const msg = message as PlayerNameMessage;
+      connectionService.assignName(msg.playerName, connectionId);
+      lobbyService.manualPublish();
+    }
+
     // create new lobby
     if (message.messageType === 'CREATE_NEW_LOBBY') {
-      if (lobbyService.connectionIsInALobby(playerId)) {
+      if (lobbyService.connectionIsInALobby(connectionId)) {
         Logger.error(
-          `Player ${playerId} could not create new lobby because player is already in another lobby.`
+          `Player ${connectionId} could not create new lobby because player is already in another lobby.`
         );
         return;
       }
-      const lobby = lobbyService.create();
+
+      const playerName =
+        connectionService.getConnectionById(connectionId)?.playerName;
+      const lobby = lobbyService.create(`${playerName}'s Lobby`);
       gameEngineService.create(lobby.id);
-      lobbyService.addConnectionToLobby(playerId, lobby.id);
+      lobbyService.addConnectionToLobby(connectionId, lobby.id);
     }
 
     // join lobby
@@ -86,12 +98,12 @@ wss.on('connection', (ws: WebSocket) => {
         Logger.error(`'lobbyId' required to join a lobby.`);
         return;
       }
-      lobbyService.addConnectionToLobby(playerId, msg.lobbyId);
+      lobbyService.addConnectionToLobby(connectionId, msg.lobbyId);
     }
 
     // exit lobbies
     if (message.messageType === 'EXIT_LOBBIES') {
-      lobbyService.removeConnectionFromAllLobbies(playerId);
+      lobbyService.removeConnectionFromAllLobbies(connectionId);
     }
 
     //////////////////////////////////////////////////////////////////
@@ -102,14 +114,14 @@ wss.on('connection', (ws: WebSocket) => {
         Logger.error(`'playerInput' required to submit player input.`);
         return;
       }
-      inputEngine.processInput(playerId, msg.playerInput);
+      inputEngine.processInput(connectionId, msg.playerInput);
     }
   });
 
   //send immediatly a feedback to the incoming connection
   apiMessageService.send(ws, {
     messageType: 'CONNECTION_ESTABLISHED',
-    connectionId: playerId
+    connectionId: connectionId
   });
 });
 

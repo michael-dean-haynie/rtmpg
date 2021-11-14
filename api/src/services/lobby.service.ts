@@ -1,9 +1,14 @@
+import { Lobby } from 'shared/src/contracts/api/lobby';
 import { v4 as uuidv4 } from 'uuid';
 import { Logger } from '../utilities/logger';
+import { ConnectionService } from './connection.service';
 
 export class LobbyService {
   lobbies: Map<string, Lobby> = new Map();
+  // eslint-disable-next-line @typescript-eslint/ban-types
   private lobbySubs: Function[] = []; // subscriptions for updates to lobbies
+
+  constructor(private readonly connectionService: ConnectionService) {}
 
   private publishLobbyUpdates(): void {
     this.lobbySubs.forEach((fn) => {
@@ -19,8 +24,8 @@ export class LobbyService {
     this.lobbySubs.push(fn);
   }
 
-  create(): Lobby {
-    const lobby = new Lobby();
+  create(name: string): Lobby {
+    const lobby = { id: uuidv4(), connections: [], name };
     this.lobbies.set(lobby.id, lobby);
     Logger.info(`Created lobby ${lobby.id}.`);
     this.publishLobbyUpdates();
@@ -36,8 +41,13 @@ export class LobbyService {
 
   removeConnectionFromAllLobbies(uuid: string): void {
     this.lobbies.forEach((lobby) => {
-      if (lobby.connections.includes(uuid)) {
-        lobby.connections = lobby.connections.filter((pid) => pid !== uuid);
+      const connectionIds = lobby.connections.map(
+        (connection) => connection.id
+      );
+      if (connectionIds.includes(uuid)) {
+        lobby.connections = lobby.connections.filter(
+          (connection) => connection.id !== uuid
+        );
         Logger.info(`Removed connection ${uuid} from lobby ${lobby.id}.`);
       }
 
@@ -60,7 +70,14 @@ export class LobbyService {
     // try to add connection if lobby exists
     const lobby = this.lobbies.get(lobbyId);
     if (lobby) {
-      lobby.connections.push(connectionId);
+      const connection = this.connectionService.getConnectionById(connectionId);
+      if (connection === undefined) {
+        Logger.error(
+          `Could not add connection ${connectionId} to lobby ${lobbyId} because connection does not exist`
+        );
+        return;
+      }
+      lobby.connections.push(connection);
       Logger.info(`Added connection ${connectionId} to lobby ${lobby.id}.`);
       this.publishLobbyUpdates();
     } else {
@@ -72,12 +89,7 @@ export class LobbyService {
 
   connectionIsInALobby(connectionId: string): boolean {
     return Array.from(this.lobbies.values()).some((rm) => {
-      return rm.connections.includes(connectionId);
+      return rm.connections.map((conn) => conn.id).includes(connectionId);
     });
   }
-}
-
-export class Lobby {
-  connections: string[] = []; // connection uuids
-  id: string = uuidv4();
 }
