@@ -2,7 +2,7 @@
 
 ## pu@
 
-- asdf
+- figure out environments
 
 ## Should Really Do
 

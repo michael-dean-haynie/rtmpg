@@ -25,7 +25,7 @@ function promptPlayerForName(): string {
 const playerName = promptPlayerForName();
 
 // Wire Up Web Socket
-const webSocket = new WebSocket('ws://localhost:80/ws');
+const webSocket = new WebSocket('ws://codetudes.com/ws');
 webSocket.onopen = () => {
   // Set Up Services
   const clientMessageService = new ClientMessageService(webSocket);
