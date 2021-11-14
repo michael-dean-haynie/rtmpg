@@ -24,7 +24,7 @@ curl -LO https://github.com/michael-dean-haynie/rtmpg/archive/master.zip
 
 unzip master.zip
 
-cd rtmpg
+cd rtmpg-master
 
 # stop the currently running container
 docker stop $(docker ps -a -q)
