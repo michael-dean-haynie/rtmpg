@@ -25,7 +25,7 @@ function promptPlayerForName(): string {
 const playerName = promptPlayerForName();
 
 // Wire Up Web Socket
-const webSocket = new WebSocket('ws://localhost:8000/ws');
+const webSocket = new WebSocket('ws://localhost:80/ws');
 webSocket.onopen = () => {
   // Set Up Services
   const clientMessageService = new ClientMessageService(webSocket);
@@ -53,6 +53,7 @@ webSocket.onopen = () => {
   const exitLobbiesButton = document.getElementById(
     'exitLobbiesBtn'
   ) as HTMLButtonElement;
+  exitLobbiesButton.disabled = true;
   exitLobbiesButton.onclick = () => {
     clientMessageService.send({ messageType: 'EXIT_LOBBIES' });
     canvasComponent.handleCurrentPlayerExit();
